@@ -1,0 +1,30 @@
+.env
+
+# machine-specific config files
+.htaccess
+.htpasswd 
+
+# nano, emacs backups
+*~
+
+# media
+media/*.*
+
+# macos
+.DS_Store
+
+# bash 
+static/bash/backup*
+!static/bash/backup_
+static/bash/sync*
+!static/bash/sync_
+static/bash/logs/*
+
+# php composer
+static/php/vendor
+
+*.sql
+
+# google search console verification
+
+robots.txt
