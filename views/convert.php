@@ -2,7 +2,7 @@
 $action = 'convert';
 if(empty($_POST)) :
 
-require_once(__DIR__ . '/../static/php/webpManagerFrontend.php');
+require_once(__DIR__ . '/../static/php/class/webpManagerFrontend.php');
 $wmf = new WebpManagerFrontend($action, array());
 
 $sql_to_convert = 'SELECT * FROM `media` WHERE `active` = "1" AND `weight` IS NULL AND `type` != "webp" AND `type` != "webm"';
@@ -48,7 +48,7 @@ foreach($media as $m) {
 <?php
 
 else:
-    require_once(__DIR__ . '/../static/php/webpManagerBackend.php');
+    require_once(__DIR__ . '/../static/php/class/webpManagerBackend.php');
     $wmb = new WebpManagerBackend($action, $media_root);
     $files = $_POST['mediaToConvert'];
     $result = $wmb->convert($files);

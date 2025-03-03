@@ -33,9 +33,9 @@ $views = array(
 <main id="<?php echo $uri[2] . '-main-content'; ?>" class="main-content main-padding-wrapper">
 
 <section class="pseudo-select-wrapper main-section"></section>
-<?php require_once('wm-' . $view . '.php'); ?>
+<?php require_once($view . '.php'); ?>
 </main>
-<script src="/static/js/Select.js"></script>
+<script src="<?php echo $wac_dir; ?>static/js/Select.js"></script>
 <script>
     (function(){
         let wrapper = document.querySelector('.pseudo-select-wrapper');

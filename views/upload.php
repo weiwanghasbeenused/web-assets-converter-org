@@ -2,7 +2,7 @@
 $action = 'upload';
 if(empty($_FILES)) :
     
-require_once(__DIR__ . '/../static/php/webpManagerFrontend.php');
+require_once(__DIR__ . '/../static/php/class/webpManagerFrontend.php');
 $wmf = new WebpManagerFrontend($action, array());
 ?>
 <section class="main-section">
@@ -89,7 +89,7 @@ input.addEventListener('change', function(){
 <?php 
 
 else:
-require_once(__DIR__ . '/../static/php/webpManagerBackend.php');
+require_once(__DIR__ . '/../static/php/class/webpManagerBackend.php');
 $wmb = new WebpManagerBackend($action, $media_root);
 if(isset($_FILES[$wmb->name])) {
     $files = $_FILES[$wmb->name];

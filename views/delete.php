@@ -2,7 +2,7 @@
 $action = 'delete';
 if(empty($_POST)) :
 
-require_once(__DIR__ . '/../static/php/webpManagerFrontend.php');
+require_once(__DIR__ . '/../static/php/class/webpManagerFrontend.php');
 $wmf = new WebpManagerFrontend($action, array('img' => $supportedImgFormats, 'vid' => $supportedVidFormats));
 
 $sql_to_delete = 'SELECT * FROM `media` WHERE `active` = "1" AND `weight` IS NOT NULL';
