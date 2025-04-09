@@ -64,8 +64,8 @@ class WebpManagerBackend {
         foreach($files as $fn) 
             $files_arr[] = $this->media_root . $fn;
         $files_arr = implode(' ', $files_arr);
-        $log = __DIR__ . '/../bash/logs/log';
-        exec(__DIR__ . '/../bash/media-converter.sh ' . $files_arr);
+        $log = __DIR__ . '/../../bash/logs/log';
+        exec(__DIR__ . '/../../bash/media-converter.sh ' . $files_arr);
 
         foreach($files as $f) {
             $fn = $this->sliceFilename($f);
@@ -77,7 +77,7 @@ class WebpManagerBackend {
                 $result[] = '[X] ' . $f . ' >>> conversion failed.';
             }
         }
-        // $log = implode('<br>', $log);
+
         $output = $this->formatOutput(implode('<br>', $result));
         return $output;
     }

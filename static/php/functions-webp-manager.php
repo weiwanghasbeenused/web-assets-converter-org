@@ -23,11 +23,6 @@ function renderVidRow($fn){
     $src = '/media/' . $fn;
     return '<video muted playsinline controls src="'.$src.'"></video>';
 }
-// function commandExist($cmd) {
-//     $return = shell_exec(sprintf("which %s", escapeshellarg($cmd)));
-//     // var_dump($return);
-//     return !empty($return);
-// }
 function commandExist($command_name)
 {
    return (null !== shell_exec("command -v $command_name"));
