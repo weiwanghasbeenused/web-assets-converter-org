@@ -10,7 +10,7 @@ export default class WACForm{
         this.vidFormats = meta['vidFormats'];
         this.filters = this.setupFilters();
         this.id = id ? id : 'wac-form-1';
-        this.num_per_fetch = 5;
+        this.num_per_fetch = 20;
         this.num_fetched = 0;
         this.isFetching = false;
         this.fetchedAll = false;
@@ -67,7 +67,7 @@ export default class WACForm{
             },
             {
                 'id': 'type',
-                'display': 'Type',
+                'display': 'Media Type',
                 'options': [
                     {
                         'key': 'option-type-all',
@@ -268,7 +268,8 @@ export default class WACForm{
         const params = new URLSearchParams(window.location.search);
         if(value === '') params.delete(key);
         else params.set(key, value);
-        window.history.pushState({}, '', window.location.pathname + '?' + params.toString());
+        // console.log()
+        window.history.pushState({}, '', window.location.pathname + (params.toString() ? '?' + params.toString() : ''));
     }
     updateList(items, resetList=false){
         const fragment = document.createDocumentFragment();
