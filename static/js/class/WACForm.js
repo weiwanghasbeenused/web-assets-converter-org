@@ -122,13 +122,16 @@ export default class WACForm{
     handleListResult(result){
         this.isFetching = false;
         const fetched = result['data'];
+        console.log('>>> handleListResult');
         if(fetched.length === 0 ) {
+            console.log('    fetched.length === 0');
             if(this.num_fetched === 0)
                 this.itemsContainer.innerHTML = `<div class="wac-message-container">${this.messages['no-item']}</div>`;  
             this.fetchedAll = true;
         } else {
             const resetList = this.num_fetched === 0;
             this.updateList(fetched, resetList);
+            console.log('    ' + fetched.length + ' vs ' + this.num_per_fetch);
             if(fetched.length < this.num_per_fetch) this.fetchedAll = true;
         }
         this.form.setAttribute('data-fetched-all', this.fetchedAll ? '1' : '0');
