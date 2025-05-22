@@ -11,7 +11,7 @@
         $extra_msg[] = '<li>Please make sure the owner of the media files align with the bash script user: ' . exec('whoami') . '</li>';
         $cwebp_is_valid = trim(shell_exec('command -v cwebp'));
         if (empty($cwebp_is_valid)) {
-                $extra_msg[] = '<li>cwebp is not found on the system. Please install it first. For more information: https://developers.go>
+                $extra_msg[] = '<li>cwebp is not found on the system. Please install it first.';
         }
         $ffmpeg_is_valid = trim(shell_exec('command -v ffmpeg'));
         if (empty($ffmpeg_is_valid)) {
