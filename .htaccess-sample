@@ -1,5 +1,5 @@
 AuthUserFile /path/to/.htpasswd
-AuthName "OPEN-RECORDS-GENERATOR"
+AuthName "Web Assets Converter"
 AuthType Basic
 Require valid-user
 
