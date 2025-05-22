@@ -20,3 +20,4 @@ static/php/composer.lock
 robots.txt
 
 config/config.php
+static/bash/logs/log

@@ -119,14 +119,15 @@ ul:first-child {
     clear: both;
     height: 0;
 }
-
+.hidden {
+    display: none;
+}
 figure img,
 figure video{
     display: block;
     width: 100%;
 }
 
-/* ids */
 #site-title {
     font-size: 1rem;
 }
@@ -134,7 +135,6 @@ figure video{
 	padding-bottom: 1em;
 }
 
-/* badge */
 .badge-element {
     position: fixed;
     font-size: 0.85rem;

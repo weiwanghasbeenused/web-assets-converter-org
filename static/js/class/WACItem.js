@@ -10,6 +10,7 @@ export default class WACItem{
         this.callback = onChange;
         this.checked = false;
         this.converted = item.converted == 1; // 1 or 0
+        this.writable = item.writable;
         if (!this.type) return null;
         this.render(item);
         this.getElements();
@@ -29,6 +30,7 @@ export default class WACItem{
         this.dom.className = 'list-item';
         this.dom.setAttribute('data-id', id);
         this.dom.setAttribute('data-converted', converted);
+        this.dom.setAttribute('data-writable', this.writable ? '1' : '0');
         this.dom.innerHTML = `<div class='item-status-bar'>
                     <div class='icon icon-converted'></div>
                     <p class='item-name'>${filename}</p>

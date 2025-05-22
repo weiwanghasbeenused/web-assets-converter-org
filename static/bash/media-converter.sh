@@ -11,7 +11,10 @@ if [ ! -f $LOG ]
   touch $LOG
 fi
 echo -e "\n" >>$LOG;
+# echo $(whoami) >>$LOG;
 echo "  ($(date +"%Y-%m-%d %T")) media-converter.sh begins" >>$LOG
+chmod 740 ./../media/*.*
+
 for f in $FILES
 do 
  FN="${f%.*}"
@@ -29,4 +32,5 @@ do
  echo "  ($(date +"%Y-%m-%d %T")) <<< converting done... $f" >>$LOG
  fi
 done
+chmod 640 ./../media/*.*
 echo "  ($(date +"%Y-%m-%d %T")) media-converter.sh ends" >>$LOG

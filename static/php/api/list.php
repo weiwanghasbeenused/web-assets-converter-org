@@ -28,7 +28,19 @@ $sql =
 
 $result = $db->query($sql);
 $items = $result->fetch_all(MYSQLI_ASSOC);
-
+$valid_owner = exec('whoami');
+foreach($items as $key => &$item) {
+    $file_path = __DIR__ . "/../../../../media/" . m_pad($item['id']) . "." . $item['type'];
+    if(!file_exists($file_path)) {
+        $item['missing-file'] = true;
+        continue;
+    }
+    $owner_id = fileowner($file_path);
+    $owner_info = posix_getpwuid($owner_id);
+    $file_owner = $owner_info['name'];
+    $item['owner'] = $file_owner;
+    $item['writable'] = $file_owner === $valid_owner;
+}
 $response['status'] = 'success';
 $response['data'] = $items;
 $response['debug'] = $sql;

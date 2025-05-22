@@ -8,6 +8,8 @@ export default class WACForm{
         this.auth = btoa(meta['username'] + ':' + meta['password']);
         this.imgFormats = meta['imgFormats'];
         this.vidFormats = meta['vidFormats'];
+        this.environment = meta['environment'];
+        this.environment_msg = meta['environment_msg'];
         this.filters = this.setupFilters();
         this.id = id ? id : 'wac-form-1';
         this.num_per_fetch = 20;
@@ -33,8 +35,17 @@ export default class WACForm{
         this.announcements = {
             'pending-request': {
                 content: 'Processing your request . . .',
-                button: []
-            }
+                buttons: []
+            }, 
+            'nothing-to-convert': {
+                content: 'There\'s no item that fits the filters.',
+                buttons: ['close']
+            },
+            'error': {
+                content: 'An error happened while processing your request.',
+                buttons: ['close']
+            },
+
         }
         this.scroll_timer = null;
         this.renderElements();
@@ -137,18 +148,21 @@ export default class WACForm{
         }
         this.form.setAttribute('data-fetched-all', this.fetchedAll ? '1' : '0');
         this.num_fetched += fetched.length;
-
+        console.log(this.fetchedAll);
+        console.log(this.itemsContainer.offsetHeight, window.innerHeight);
         if(!this.fetchedAll && this.itemsContainer.offsetHeight < window.innerHeight) {
             this.fetchItems();
         }
     }
     renderElements(){
         this.controls = this.renderControls();
+        const status_bar = this.renderStatusBar();
         this.list = this.renderList();
         this.form = document.createElement('form');
         this.form.id = this.id;
         this.form.className = 'wac-form';
         this.form.appendChild(this.controls);
+        this.form.appendChild(status_bar);
         this.form.appendChild(this.list);
         this.announcement = this.renderAnnouncement();
         this.container = document.createElement('div');
@@ -164,6 +178,15 @@ export default class WACForm{
         const actions = this.renderActions();
         output.appendChild(filters);
         output.appendChild(actions);
+        return output;
+    }
+    renderStatusBar(){  
+        const output = document.createElement('div');
+        output.id = 'status-bar';
+        output.innerHTML = `<div id='environment'>Environment: ${this.environment}</div>`;
+        if(this.environment_msg) { 
+            output.innerHTML += `<div id='environment-msg'>${this.environment_msg}</div>`;
+        }
         return output;
     }
     renderList(){
@@ -236,7 +259,8 @@ export default class WACForm{
         const btns = document.createElement('div');
         btns.className = 'announcement-btn-container';
         const btn = document.createElement('div');
-        btn.className = 'btn close-announcement-btn';
+        btn.className = 'btn announcement-btn hidden';
+        btn.setAttribute('data-action', 'close');
         btn.innerText = 'Okay';
         btns.appendChild(btn);
         output.appendChild(message);
@@ -249,8 +273,13 @@ export default class WACForm{
         this.loadingTrigger = this.list.querySelector('.list-bottom-message');
         this['convert-btn'] = this.container.querySelector('#convert-btn');
         this['unconvert-btn'] = this.container.querySelector('#unconvert-btn');
+        this.announcement_btns = {};
+        this.announcement_btns['close'] = this.container.querySelector('.announcement-btn[data-action="close"]');
     }
     addListeners(){
+        this.announcement_btns['close'].addEventListener('click', ()=>{
+            this.closeAnnouncement();
+        })
         window.addEventListener('scroll', ()=>{
             this.bufferScroll();
         })
@@ -293,12 +322,18 @@ export default class WACForm{
     convert(){
         const data = new FormData(this.form);
         data.append('action', 'convert');
-        this.updateStatus('pending-request');
+        const status = 'pending-request';
+        this.updateStatus(status);
+        this.showAnnouncement(this.announcements[status]['content'], this.announcements[status]['buttons']);
         this.request(this.endpoints['convert'], 'POST', data, this.handleConvertResult.bind(this))
     }
     handleConvertResult(result){
         if(result['status'] === 'nothing-to-convert') {
             return;
+        }else if(result['status'] === 'error') {
+            this.updateStatus('error');
+            const msg = result['data'] ? this.announcements['error']['content'] + '<br>' + result['data'] : this.announcements['error']['content'];
+            this.showAnnouncement(msg, this.announcements['error']['buttons']);
         }
         const success = result['data']['success'];
         const fail = result['data']['fail'];
@@ -310,11 +345,21 @@ export default class WACForm{
             list_item.updateConverted(true);
         }
         this.updateStatus('');
+        this.closeAnnouncement();
     }
     unconvert(){
+        if(result['status'] === 'nothing-to-convert') {
+            return;
+        }else if(result['status'] === 'error') {
+            this.updateStatus('error');
+            const msg = result['data'] ? this.announcements['error']['content'] + '<br>' + result['data'] : this.announcements['error']['content'];
+            this.showAnnouncement(msg, this.announcements['error']['buttons']);
+        }
         const data = new FormData(this.form);
         data.append('action', 'unconvert');
-        this.updateStatus('pending-request');
+        const status = 'pending-request';
+        this.updateStatus(status);
+        this.showAnnouncement(this.announcements[status]['content'], this.announcements[status]['buttons']);
         this.request(this.endpoints['unconvert'], 'POST', data, this.handleUnconvertResult.bind(this))
     }
     handleUnconvertResult(result){
@@ -328,6 +373,7 @@ export default class WACForm{
             list_item.updateConverted(false);
         }
         this.updateStatus('');
+        this.closeAnnouncement();
     }
     inspect(item, action){
         
@@ -344,8 +390,6 @@ export default class WACForm{
             return response.json();
          })
          .then((result)=>{
-            // console.log(result);
-            // this.updateStatus('');
             if(typeof cb === 'function')
                 cb(result);
          })
@@ -353,11 +397,19 @@ export default class WACForm{
     updateStatus(status){
         this.status = status;
         this.container.setAttribute('data-status', this.status);
-        if(this.announcements[this.status]) {
-            this.container.classList.add('viewing-announcement');
-            this.announcement_message.innerHTML = this.announcements[this.status]['content'];
-        } else {
-            this.container.classList.remove('viewing-announcement');
+    }
+    showAnnouncement(msg, btns=[]){
+        this.container.classList.add('viewing-announcement');
+        this.announcement_message.innerHTML = msg;
+        for(const slug of btns) {
+            if(!this.announcement_btns[slug]) continue;
+            this.announcement_btns[slug].classList.remove('hidden');
+        }
+    }
+    closeAnnouncement(){
+        this.container.classList.remove('viewing-announcement');
+        for(const slug in this.announcement_btns) {
+            this.announcement_btns[slug].classList.add('hidden');
         }
     }
     updateCheckedList(input, item_converted){

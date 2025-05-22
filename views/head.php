@@ -2,6 +2,7 @@
 require_once(__DIR__ . '/../static/php/vendor/autoload.php');
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
+$environment = $_ENV['SUBMODULE_ENVIRONMENT'] ?? 'development';
 // path to config file
 $wac_config_dir = __DIR__ . '/../config/';
 require_once($wac_config_dir."config.php");

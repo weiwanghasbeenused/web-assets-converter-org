@@ -43,7 +43,6 @@ $files_str = implode(' ', $files_arr);
 $log = __DIR__ . '/../../bash/logs/log';
 exec(__DIR__ . '/../../bash/media-converter.sh ' . $files_str);
 $converted = array();
-
 foreach($result as $m) {
     $padded_id = m_pad($m['id']);
     $f = m_pad($m['id']) . '.' . $m['type'];
@@ -63,10 +62,31 @@ foreach($result as $m) {
 }
 // $response_body = implode('<br>', $response_body);
 $n = count($converted);
+if($n === 0) {
+    $response['status'] = 'error';
+    $response['data'] = 'None of the files were converted: <br>' . implode('<br>', $ids);
+    echo json_encode($response, true);
+    exit();
+}
 $q = implode(", ", array_fill(0, $n, "?"));
 $s = str_repeat("s", $n);
 $sql = "UPDATE `media` SET `weight` = 1.0 WHERE id IN ($q)";
+
+try{
+    $stmt = $db->prepare($sql);
+} catch (Exception $e) {
+    $response['status'] = 'error';
+    $response['data'] = $e->getMessage();
+    echo json_encode($response, true);
+    exit();
+}
 $stmt = $db->prepare($sql);
+if(!$stmt) {
+    $response['status'] = 'error';
+    $response['data'] = $db->error;
+    echo json_encode($response, true);
+    exit();
+}
 $stmt->bind_param($s, ...$converted);
 $stmt->execute();
 $response = array(
