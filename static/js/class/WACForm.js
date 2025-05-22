@@ -185,7 +185,7 @@ export default class WACForm{
         output.id = 'status-bar';
         output.innerHTML = `<div id='environment'>Environment: ${this.environment}</div>`;
         if(this.environment_msg) { 
-            output.innerHTML += `<div id='environment-msg'>${this.environment_msg}</div>`;
+            output.innerHTML += `<div id='environment-msg'><ul>${this.environment_msg}</ul></div>`;
         }
         return output;
     }

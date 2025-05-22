@@ -6,11 +6,19 @@
     $username = $_ENV['AUTH_USERNAME'];
     $password = $_ENV['AUTH_PASSWORD'];
 
-    $extra_msg = '';
+    $extra_msg = array();
     if($environment === 'development'){
-        $extra_msg .= 'Please make sure the owner of the media files align with the bash script user: ' . exec('whoami');
+        $extra_msg[] = '<li>Please make sure the owner of the media files align with the bash script user: ' . exec('whoami') . '</li>';
+        $cwebp_is_valid = trim(shell_exec('command -v cwebp'));
+        if (empty($cwebp_is_valid)) {
+                $extra_msg[] = '<li>cwebp is not found on the system. Please install it first. For more information: https://developers.go>
+        }
+        $ffmpeg_is_valid = trim(shell_exec('command -v ffmpeg'));
+        if (empty($ffmpeg_is_valid)) {
+                $extra_msg[] = '<li>ffmpeg is not found on the system. Please install it first.';
+        }
     }
-
+    $extra_msg = implode('', $extra_msg);
     $items = callAPI('GET', $endpoints['list'], "$username:$password")['data'];
 ?>
 <div id="app"></div>

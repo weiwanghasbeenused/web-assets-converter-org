@@ -16,7 +16,7 @@ $response_body = array(
     'success' => array(),
     'fail'    => array()
 );
-$db = db_connect("guest");
+$db = db_connect("main");
 $ids = $_POST['ids'];
 $n = count($ids);
 $q = implode(", ", array_fill(0, $n, "?"));
