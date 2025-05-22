@@ -28,3 +28,5 @@ static/php/vendor
 # google search console verification
 
 robots.txt
+
+config/config.php
