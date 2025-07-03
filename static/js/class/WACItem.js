@@ -1,5 +1,5 @@
 export default class WACItem{
-    constructor(item, imgFormats, vidFormats, onChange=null){
+    constructor(item, imgFormats, vidFormats, onChange=null, compare=null){
         this.imgFormats = imgFormats;
         this.vidFormats = vidFormats;
         this.ext = item.type;
@@ -11,6 +11,8 @@ export default class WACItem{
         this.checked = false;
         this.converted = item.converted == 1; // 1 or 0
         this.writable = item.writable;
+        this.compare = compare;
+        // console.log(this.compare);
         if (!this.type) return null;
         this.render(item);
         this.getElements();
@@ -55,9 +57,17 @@ export default class WACItem{
     }
     getElements(){
         this.input = this.dom.querySelector('input');
+        this.media = this.dom.querySelector('img, video');
     }
     addListeners(){
         this.input.onchange = this.handleChange.bind(this);
+        this.media.addEventListener('click', (e) => {
+            if(this.compare && this.converted && this.writable) {
+                let src_converted = this.getSrc(this.media_id, (this.type === 'image' ? 'webp' : 'webm'));
+                let src_original = this.getSrc(this.media_id, this.ext);
+                this.compare.show(src_original, src_converted, this.type);
+            }
+        });
     }
     handleChange(){
         this.checked = this.input.checked;
@@ -70,6 +80,10 @@ export default class WACItem{
             id = '0' + id;
         }
         return id + '.' + ext;
+    }
+    getSrc(id, ext){
+        const filename = this.getFilename(id, ext);
+        return `${window.location.origin}/media/${filename}`;
     }
     updateConverted(to){
         this.converted = to;

@@ -1,11 +1,12 @@
 import WACItem from './WACItem.js';
 import Select from './Select.js';
+import WACCompare from './WACCompare.js';
 
 export default class WACForm{
     constructor(parent, id, meta){
         if(!parent) return;
         this.parent = parent;
-        this.auth = btoa(meta['username'] + ':' + meta['password']);
+        // this.auth = btoa(meta['username'] + ':' + meta['password']);
         this.imgFormats = meta['imgFormats'];
         this.vidFormats = meta['vidFormats'];
         this.environment = meta['environment'];
@@ -48,8 +49,10 @@ export default class WACForm{
 
         }
         this.scroll_timer = null;
+        this.compare = new WACCompare();
         this.renderElements();
         this.getElements();
+        this.compare.addTo(this.container);
         this.fetchItems();
         this.addListeners();
     }
@@ -135,7 +138,7 @@ export default class WACForm{
         const fetched = result['data'];
         if(fetched.length === 0 ) {
             if(this.num_fetched === 0)
-                this.itemsContainer.innerHTML = `<div class="wac-message-container">${this.messages['no-item']}</div>`;  
+                this.itemsContainer.innerHTML = `<ul class="wac-message-container">${this.messages['no-item']}</ul>`;  
             this.fetchedAll = true;
         } else {
             const resetList = this.num_fetched === 0;
@@ -148,8 +151,6 @@ export default class WACForm{
         }
         this.form.setAttribute('data-fetched-all', this.fetchedAll ? '1' : '0');
         this.num_fetched += fetched.length;
-        console.log(this.fetchedAll);
-        console.log(this.itemsContainer.offsetHeight, window.innerHeight);
         if(!this.fetchedAll && this.itemsContainer.offsetHeight < window.innerHeight) {
             this.fetchItems();
         }
@@ -161,6 +162,7 @@ export default class WACForm{
         this.form = document.createElement('form');
         this.form.id = this.id;
         this.form.className = 'wac-form';
+        this.form.setAttribute('data-batch-action', 'none');
         this.form.appendChild(this.controls);
         this.form.appendChild(status_bar);
         this.form.appendChild(this.list);
@@ -273,6 +275,7 @@ export default class WACForm{
         this.loadingTrigger = this.list.querySelector('.list-bottom-message');
         this['convert-btn'] = this.container.querySelector('#convert-btn');
         this['unconvert-btn'] = this.container.querySelector('#unconvert-btn');
+        this.listItems = this.container.querySelector('#unconvert-btn');
         this.announcement_btns = {};
         this.announcement_btns['close'] = this.container.querySelector('.announcement-btn[data-action="close"]');
     }
@@ -315,7 +318,7 @@ export default class WACForm{
         if (this.fetched.has(item.id)) {
             return this.fetched.get(item.id); // Return cached DOM element
         }
-        const element = new WACItem(item, this.imgFormats, this.vidFormats, this.updateCheckedList.bind(this));
+        const element = new WACItem(item, this.imgFormats, this.vidFormats, this.updateCheckedList.bind(this), this.compare);
         this.fetched.set(item.id, element); // Cache it
         return element;
     }
@@ -334,27 +337,29 @@ export default class WACForm{
             this.updateStatus('error');
             const msg = result['data'] ? this.announcements['error']['content'] + '<br>' + result['data'] : this.announcements['error']['content'];
             this.showAnnouncement(msg, this.announcements['error']['buttons']);
+        } else {
+            const success = result['data']['success'];
+            const fail = result['data']['fail'];
+            for(const item of success) {
+                const id = item['id'];
+                const list_item = this.items.find(el=>el.media_id == id );
+                if(!list_item) continue;
+                list_item.updateChecked(false);
+                list_item.updateConverted(true);
+            }
+            this.updateStatus('');
+            this.closeAnnouncement();
         }
-        const success = result['data']['success'];
-        const fail = result['data']['fail'];
-        for(const item of success) {
-            const id = item['id'];
-            const list_item = this.items.find(el=>el.media_id == id );
-            if(!list_item) continue;
-            list_item.updateChecked(false);
-            list_item.updateConverted(true);
-        }
-        this.updateStatus('');
-        this.closeAnnouncement();
+        
     }
     unconvert(){
-        if(result['status'] === 'nothing-to-convert') {
-            return;
-        }else if(result['status'] === 'error') {
-            this.updateStatus('error');
-            const msg = result['data'] ? this.announcements['error']['content'] + '<br>' + result['data'] : this.announcements['error']['content'];
-            this.showAnnouncement(msg, this.announcements['error']['buttons']);
-        }
+        // if(result['status'] === 'nothing-to-convert') {
+        //     return;
+        // }else if(result['status'] === 'error') {
+        //     this.updateStatus('error');
+        //     const msg = result['data'] ? this.announcements['error']['content'] + '<br>' + result['data'] : this.announcements['error']['content'];
+        //     this.showAnnouncement(msg, this.announcements['error']['buttons']);
+        // }
         const data = new FormData(this.form);
         data.append('action', 'unconvert');
         const status = 'pending-request';
@@ -379,7 +384,7 @@ export default class WACForm{
         
     }
     request(endpoint, method, data, cb){
-        
+        console.log('request', endpoint);
         const options = {method: method};
         if(method === 'POST' && data) options['body'] = data;
         fetch(endpoint, options)
@@ -415,8 +420,9 @@ export default class WACForm{
     updateCheckedList(input, item_converted){
         // const input = e.target;
         const id = input.value;
+        const action = item_converted ? 'unconvert' : 'convert';
         let arr = item_converted ? this.checked['converted'] : this.checked['not-converted'];
-        let action_btn = this[`${item_converted ? 'unconvert' : 'convert' }-btn`];
+        let action_btn = this[`${action}-btn`];
         if(input.checked) {
             arr.push(id);
         } else {
@@ -426,8 +432,10 @@ export default class WACForm{
         }
         if(arr.length === 0) {
             action_btn.setAttribute('data-enabled', 0);
+            this.form.setAttribute('data-batch-action', 'none');
         } else {
             action_btn.setAttribute('data-enabled', 1);
+            this.form.setAttribute('data-batch-action', action);
         }
     }
     bufferScroll(){

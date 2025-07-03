@@ -80,7 +80,6 @@ export default class Select{
         this.elements.toggle.innerText = this.options[idx]['display'];
         this.elements.options[idx].classList.add('selected');
         this.collapse();
-        // console.log(this.onChange);
         if(typeof this.onChange === 'function')
             this.onChange(this.options[idx].value);
     }
@@ -107,9 +106,7 @@ export default class Select{
         // ...
     }
     onClickOutside(targetElement, callback) {
-        console.log('onClickOutside');
         function handleClick(event) {
-            console.log('handleClick');
           if (!targetElement.contains(event.target)) {
             callback(event);
           }

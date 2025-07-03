@@ -10,8 +10,8 @@
 .DS_Store
 
 # php composer
-static/php/vendor
-static/php/composer.lock
+utils/vendor
+utils/composer.lock
 
 *.sql
 
@@ -19,5 +19,5 @@ static/php/composer.lock
 
 robots.txt
 
-config/config.php
+config/config.json
 static/bash/logs/log

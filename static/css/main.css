@@ -91,12 +91,6 @@ main:before {
 figure {
     position: relative;
 }
-
-p {
-    /* position: relative;
-    z-index: 1000; */
-}
-
 ul {
 	list-style-type: none;
 	padding: 0;
@@ -111,7 +105,7 @@ ul:first-child {
     max-width: 100%;
 }
 .full-vh {
-    height: 100vh;
+    height: 100dvh;
 }
 .float-container:after {
     content:'';
@@ -121,6 +115,10 @@ ul:first-child {
 }
 .hidden {
     display: none;
+}
+.transparent {
+    opacity: 0;
+    pointer-events: none;
 }
 figure img,
 figure video{

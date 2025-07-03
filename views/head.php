@@ -1,33 +1,30 @@
 <?php
-require_once(__DIR__ . '/../static/php/vendor/autoload.php');
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+require_once(__DIR__ . '/../utils/vendor/autoload.php');
+try{
+	$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+} catch(Exception $err) {
+	die('.env doesnt exist');
+}
 $dotenv->load();
-$environment = $_ENV['SUBMODULE_ENVIRONMENT'] ?? 'development';
-// path to config file
-$wac_config_dir = __DIR__ . '/../config/';
-require_once($wac_config_dir."config.php");
-$wac_url = $site_url . '/web-assets-converter/';
+if(!$_ENV['MEOW_URL'])
+	die('MEOW_URL is not set in .env');
+$environment = $_ENV['ENVIRONMENT'] ?? 'development';
+$meow_url = $_ENV['MEOW_URL'];
+require_once(__DIR__ . '/../utils/loadConfig.php');
+$config = loadConfig();
 $endpoints = array(
-	'list' => $wac_url . 'static/php/api/list.php',
-	'delete' => $wac_url . 'static/php/api/delete.php',
-	'update' => $wac_url . 'static/php/api/update.php'
+	'list' => $meow_url . '/api/list',
+	'delete' => $meow_url . '/api/delete',
+	'update' => $meow_url . '/api/update'
 );
-
-require_once(__DIR__ . '/../static/php/functions.php');
-require_once($org_config_dir."config.php");
-
 $user = $_SERVER['PHP_AUTH_USER'] ? $_SERVER['PHP_AUTH_USER'] : $_SERVER['REDIRECT_REMOTE_USER'];
-$db = db_connect($user);
 
-$oo = new Objects();
-$mm = new Media();
-$ww = new Wires();
-$name = "Web Assets Converter";
+$name = "Media-Encoding Optimizer for the Web";
 
 // document title
 $title = $name;
 
-$css = array( 'main', 'wac', 'select' );
+$css = array( 'main', 'wac', 'select', 'icon' );
 ?>
 <!DOCTYPE html>
 <html>
@@ -39,9 +36,9 @@ $css = array( 'main', 'wac', 'select' );
 		<?php foreach($css as $c): 
 			$query = filemtime(__DIR__ . '/../static/css/' . $c . '.css');
 		?>
-			<link id="<?php echo $c; ?>-style" rel="stylesheet" href="<? echo $wac_url; ?>static/css/<?php echo $c; ?>.css?v=<?php echo $query; ?>">
+			<link id="<?php echo $c; ?>-style" rel="stylesheet" href="<? echo $meow_url; ?>/static/css/<?php echo $c; ?>.css?v=<?php echo $query; ?>">
 		<?php endforeach; ?>
-		<script src="<?php echo $wac_url; ?>static/js/utils/_cookie.js"></script>
+		<script src="<?php echo $meow_url; ?>/static/js/utils/_cookie.js"></script>
 	</head>
 	<body>
-		<script src="<?php echo $wac_url; ?>static/js/utils/_sniffing.js"></script>
+		<script src="<?php echo $meow_url; ?>/static/js/utils/_sniffing.js"></script>

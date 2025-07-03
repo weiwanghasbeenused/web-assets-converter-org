@@ -1,0 +1,93 @@
+.icon-wrapper {
+    --icon-width: 40px;
+    --icon-height: 40px;
+    --icon-thickness: 2px;
+    --icon-color: #000; 
+    --icon-hover-color: #aaa;
+    --icon-disabled-color: #aaa;
+    cursor: pointer;
+}
+.icon-wrapper[data-color-theme="light"] {
+    --icon-color: #fff; 
+    --icon-hover-color: #888;
+    --icon-disabled-color: #555;
+}
+a.icon {
+    display: block;
+}
+.noTouchScreen .icon-wrapper:hover {
+    --icon-color: var(--icon-hover-color);
+}
+.icon-wrapper.disabled,
+.noTouchScreen .icon-wrapper.disabled:hover {
+    --icon-color: var(--icon-disabled-color);
+    cursor: not-allowed;
+}
+
+.icon.arrow-left,
+.icon.arrow-right {
+    
+    position: relative;
+    width: var(--icon-width);
+    height: var(--icon-height);
+}
+.icon.arrow-left:before,
+.icon.arrow-right:before,
+.icon.arrow-left:after,
+.icon.arrow-right:after {
+    content: '';
+    position: absolute;
+}
+.icon.arrow-right:before,
+.icon.arrow-left:before {
+    /* arrow tail */
+    width: 70%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: var(--icon-thickness);
+    background-color: var(--icon-color);
+}
+.icon.arrow-right:after,
+.icon.arrow-left:after {
+    width: 40%;
+    height: 40%;
+    transform: rotate(45deg);
+}
+.icon.arrow-right:after {
+    border-top: var(--icon-thickness) solid var(--icon-color);
+    border-right: var(--icon-thickness) solid var(--icon-color);
+    transform-origin: top right;
+    top: 50%;
+    right: 10%;
+}
+.icon.arrow-left:after {
+    border-bottom: var(--icon-thickness) solid var(--icon-color);
+    border-left: var(--icon-thickness) solid var(--icon-color);
+    transform-origin: bottom left;
+    bottom: 50%;
+    left: 10%;
+}
+
+.icon.cross {
+    position: relative;
+    width: var(--icon-width);
+    height: var(--icon-height);
+}
+.icon.cross:before,
+.icon.cross:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 90%;
+    height: var(--icon-thickness);
+    background-color: var(--icon-color);
+    
+}
+.icon.cross:before {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+.icon.cross:after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}

@@ -5,8 +5,12 @@ if(!$_POST || empty($_POST)) {
     exit('this is the convert endpoint . . .');
 }
 
-require_once(__DIR__ . '/../../../config/config.php');
-require_once($org_config_dir."config.php");
+require_once(__DIR__ . '/../utils/loadConfig.php');
+require_once(__DIR__ . '/../utils/db_connect.php');
+require_once(__DIR__ . '/../utils/m_pad.php');
+$config = loadConfig();
+// require_once($org_config_dir."config.php");
+
 $response = array(
     'action' => 'convert',
     'status' => '',
@@ -32,7 +36,8 @@ foreach($result as $m) {
         $response_body['fail'][] = $m['id'];
         continue;
     }
-    $files_arr[] = $media_root . m_pad(intval($m['id'])) . '.' . $m['type'];
+    $padded_id = m_pad($m['id']);
+    $files_arr[] = $config['media_root'] . '/' . $padded_id . '.' . $m['type'];
 }
 if(empty($files_arr)) {
     $response['status'] = 'nothing-to-convert';
@@ -40,14 +45,14 @@ if(empty($files_arr)) {
     exit();
 }
 $files_str = implode(' ', $files_arr);
-$log = __DIR__ . '/../../bash/logs/log';
-exec(__DIR__ . '/../../bash/media-converter.sh ' . $files_str);
+$log = __DIR__ . '/../bash/logs/log';
+exec(__DIR__ . '/../bash/media-converter.sh ' . $files_str);
 $converted = array();
 foreach($result as $m) {
     $padded_id = m_pad($m['id']);
-    $f = m_pad($m['id']) . '.' . $m['type'];
+    $f = $padded_id . '.' . $m['type'];
     
-    if(file_exists($media_root . $padded_id . '.' . 'webp') || file_exists($media_root . $padded_id . '.' . 'webm')){
+    if(file_exists($config['media_root'] . '/' . $padded_id . '.' . 'webp') || file_exists($config['media_root'] . '/' . $padded_id . '.' . 'webm')){
         $converted[] = $m['id'];
         $response_body['success'][] = array(
             'id' => $m['id'],
@@ -64,7 +69,7 @@ foreach($result as $m) {
 $n = count($converted);
 if($n === 0) {
     $response['status'] = 'error';
-    $response['data'] = 'None of the files were converted: <br>' . implode('<br>', $ids);
+    $response['data'] = $files_str . '<br> None of the files were converted: <br>' . implode('<br>', $ids);
     echo json_encode($response, true);
     exit();
 }

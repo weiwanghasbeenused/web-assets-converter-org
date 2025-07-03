@@ -4,9 +4,11 @@ if(!$_POST || empty($_POST)) {
 } else if(!isset($_POST['action']) || $_POST['action'] !== 'unconvert'){
     exit('this is the unconvert endpoint . . .');
 }
+require_once(__DIR__ . '/../utils/m_pad.php');
+require_once(__DIR__ . '/../utils/loadConfig.php');
+require_once(__DIR__ . '/../utils/db_connect.php');
+$config = loadConfig();
 
-require_once(__DIR__ . '/../../../config/config.php');
-require_once($org_config_dir."config.php");
 $response = array(
     'action' => 'convert',
     'status' => '',
@@ -32,6 +34,7 @@ foreach($result as $m) {
         $response_body['fail'][] = $m['id'];
         continue;
     }
+    $padded_id = m_pad($m['id']);
     $files_arr[] = $media_root . m_pad(intval($m['id'])) . '.' . $m['type'];
 }
 
@@ -42,7 +45,7 @@ $unconverted = array();
 
 foreach($result as $m) {
     $padded_id = m_pad($m['id']);
-    $f = m_pad($m['id']) . '.' . (in_array($m['type'], $supportedImgFormats) ? 'webp' : 'webm');
+    $f = $padded_id . '.' . (in_array($m['type'], $config['supportedImgFormats']) ? 'webp' : 'webm');
     
     if(unlink($media_root . $f)){
         $unconverted[] = $m['id'];

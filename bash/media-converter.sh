@@ -1,7 +1,7 @@
 #!/bin/bash
 
 CURRENT=`pwd`
-LOG="static/bash/logs/log"
+LOG="bash/logs/log"
 IMG_FORMATS=("jpg" "jpeg" "png" "tiff" "heif")
 VID_FORMATS=("mp4" "mov")
 FILES="$@"
@@ -14,9 +14,10 @@ echo -e "\n" >>$LOG;
 # echo $(whoami) >>$LOG;
 echo "  ($(date +"%Y-%m-%d %T")) media-converter.sh begins" >>$LOG
 chmod 740 ./../media/*.*
-
+echo $(whoami) >> $LOG
 for f in $FILES
 do 
+ echo "converting $f"
  FN="${f%.*}"
  EXT="${f##*.}"
  if [ ! -e "$FN.webp" ] && [[ $(echo ${IMG_FORMATS[@]} | fgrep -w $EXT) ]]
