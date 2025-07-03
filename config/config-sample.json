@@ -1,8 +1,7 @@
 {
-  "initialized": false,
-  "site_url": "https://example.com",
   "supportedImgFormats": ["jpg", "jpeg", "png", "webp", "gif", "tiff", "heif"],
   "supportedVidFormats": ["mp4", "webm", "mov"],
-  "org_dir": "../../open-records-generator/",
-  "org_config_dir": "../../open-records-generator/config/"
+  "site_url": "http://example.com",
+  "meow_url": "http://example.com/web-assets-converter",
+  "media_root": "/media"
 }
